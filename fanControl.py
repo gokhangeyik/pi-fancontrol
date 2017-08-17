@@ -7,7 +7,7 @@ from time import sleep
 
 
 criticalTemperature = 57  # Critical temperature
-idealTemperature = 46  # Desired temperature
+idealTemperature = 38  # Desired temperature
 gpioPin = 3  # GPIO PIN number, BOARD style
 
 cycleRange = criticalTemperature - idealTemperature
@@ -22,28 +22,33 @@ termalRecordCycle = 600  # How many seconds will keep historical data of thermal
 def fanSpeedControl(pinHandler, desiredSpeed):
     if desiredSpeed == 1:
         pinHandler.ChangeDutyCycle(45)
-        print("40")
+        # print("40")
     elif desiredSpeed == 2:
         pinHandler.ChangeDutyCycle(50)
-        print("50")
+        # print("50")
     elif desiredSpeed == 3:
         pinHandler.ChangeDutyCycle(60)
-        print("60")
+        # print("60")
     elif desiredSpeed == 4:
         pinHandler.ChangeDutyCycle(70)
-        print("70")
+        # print("70")
     elif desiredSpeed == 5:
         pinHandler.ChangeDutyCycle(80)
-        print("80")
+        # print("80")
     elif desiredSpeed == 6:
         pinHandler.ChangeDutyCycle(90)
-        print("90")
+        # print("90")
     elif desiredSpeed == 7:
         pinHandler.ChangeDutyCycle(100)
-        print("100")
+        # print("100")
     elif desiredSpeed == 8:
         pinHandler.ChangeDutyCycle(0)
-        print("OFF")
+        # print("OFF")
+    elif desiredSpeed == 9:
+        pinHandler.ChangeDutyCycle(45)
+        sleep(5)
+        pinHandler.ChangeDutyCycle(38)
+        # print("27")
 
 
 if len(argv) > 1:
@@ -100,7 +105,10 @@ if len(argv) > 1:
                 else:
                     currentDifference = criticalTemperature - currentTemperature
                     fanSpeed = 100 - ceil((currentDifference / cycleRange) * 100)
-                    if fanSpeed > 20 and fanSpeed < 40 and dutyPhase != 1:
+                    if fanSpeed > 25 and fanSpeed <= 30 and dutyPhase != 9:
+                        fanSpeedControl(pinHandler, 9)
+                        dutyPhase = 9
+                    elif fanSpeed > 30 and fanSpeed < 40 and dutyPhase != 1:
                         fanSpeedControl(pinHandler, 1)
                         dutyPhase = 1
                     elif fanSpeed >= 100 and dutyPhase != 7:
@@ -139,24 +147,28 @@ if len(argv) > 1:
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(gpioPin, GPIO.OUT)
-        pinHandler = GPIO.PWM(3, 50)
-        pinHandler.start(100)
-        print("Fan power 100%")
-        sleep(15)
-        print("Fan power 40%")
-        fanSpeedControl(pinHandler, 1)
-        sleep(6)
+        pinHandler = GPIO.PWM(3, 60)
+        pinHandler.start(0)
+        print("Fan power 0%")
+        sleep(5)
         print("Fan power 90%")
+        fanSpeedControl(pinHandler, 8)
+        sleep(1)
         fanSpeedControl(pinHandler, 6)
         sleep(6)
-        print("Fan power 40%")
-        fanSpeedControl(pinHandler, 1)
+        print("Fan power 80%")
+        fanSpeedControl(pinHandler, 5)
+        sleep(6)
+        print("Fan power 70%")
+        fanSpeedControl(pinHandler, 8)
+        sleep(1)
+        fanSpeedControl(pinHandler, 4)
+        sleep(6)
+        print("Fan power 60%")
+        fanSpeedControl(pinHandler, 3)
         sleep(6)
         print("Fan power 50%")
         fanSpeedControl(pinHandler, 2)
-        sleep(6)
-        print("Fan power 70%")
-        fanSpeedControl(pinHandler, 4)
         sleep(6)
     else:
         print("Sen beni calistirmayi pek bilmiyorsun sanirim?")
